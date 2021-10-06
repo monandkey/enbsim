@@ -1,0 +1,43 @@
+version: "3.7"
+
+services:
+    enbsim-dev:
+        image: golang:1.16.1
+        hostname: enbsim-dev
+        container_name: enbsim-dev
+        volumes:
+            - "../:/home/enbsim:rw"
+        working_dir: "/home/enbsim"
+        networks:
+          sctp_net:
+            ipv4_address: 192.168.200.20
+        command: /bin/sh -c "while :; do sleep 10; done"
+
+    sctp-server:
+        image: monandkey/sctpserver:latest
+        hostname: sctp-server
+        container_name: sctp-server
+        working_dir: "/go/sctp/example"
+        networks:
+          sctp_net:
+            ipv4_address: 192.168.200.10
+        command: ./example -server -port 36412 -ip 192.168.200.10
+
+    # sctp-client:
+    #     image: monandkey/sctpserver:latest
+    #     hostname: sctp-client
+    #     container_name: sctp-client
+    #     working_dir: "/go/sctp/example"
+    #     networks:
+    #       sctp_net:
+    #         ipv4_address:192.168.200.30
+    #     command: ./example -port 36412 -ip 192.168.200.10
+
+networks:
+  sctp_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.200.0/24
+          # gateway: 192.168.200.1
